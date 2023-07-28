@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/Cheap-NFT-Marketplace/wallet-information/cmd/config"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/wallet-detail/cmd/config"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -30,7 +30,7 @@ func NewFiberServer(config config.Config, handler handlerIntf) Server {
 }
 
 func (srv Server) AddRoutes() Server {
-	srv.App.Post("/wallet-information", srv.handler.WalletDetail)
+	srv.App.Post("/wallet-detail", srv.handler.WalletDetail)
 	return srv
 }
 

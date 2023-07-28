@@ -1,6 +1,6 @@
 package internal
 
-import "github.com/Cheap-NFT-Marketplace/wallet-information/internal/dal/model"
+import "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/wallet-detail/internal/dal/model"
 
 type WalletDetail struct {
 	NonceDetails   model.NonceDetails   `json:"nonceDetails"`

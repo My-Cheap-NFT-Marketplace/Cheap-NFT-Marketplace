@@ -2,7 +2,7 @@ package dal
 
 import (
 	"context"
-	"github.com/Cheap-NFT-Marketplace/wallet-information/internal/dal/model"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/wallet-detail/internal/dal/model"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"sync"

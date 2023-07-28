@@ -1,7 +1,7 @@
 package dal
 
 import (
-	"github.com/Cheap-NFT-Marketplace/wallet-information/cmd/config"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/cmd/config"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 

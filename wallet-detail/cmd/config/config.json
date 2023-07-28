@@ -1,5 +1,5 @@
 {
-  "serviceName": "wallet-information",
+  "serviceName": "wallet-detail",
   "environment": "{ENVIRONMENT}",
   "url": "{SEPOLIA_URL}",
   "port": "6001"

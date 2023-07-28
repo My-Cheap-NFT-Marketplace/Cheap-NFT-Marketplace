@@ -3,9 +3,9 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"github.com/Cheap-NFT-Marketplace/wallet-information/cmd/config"
-	"github.com/Cheap-NFT-Marketplace/wallet-information/cmd/server/handler/model"
-	"github.com/Cheap-NFT-Marketplace/wallet-information/internal"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/wallet-detail/cmd/config"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/wallet-detail/cmd/server/handler/model"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/wallet-detail/internal"
 	"github.com/gofiber/fiber/v2"
 	"math/big"
 )
