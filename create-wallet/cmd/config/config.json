@@ -1,0 +1,6 @@
+{
+  "serviceName": "create-wallet",
+  "environment": "{ENVIRONMENT}",
+  "url": "{SEPOLIA_URL}",
+  "port": "6003"
+}
