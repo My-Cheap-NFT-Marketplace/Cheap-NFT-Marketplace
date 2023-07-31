@@ -1,0 +1,6 @@
+{
+  "serviceName": "marketplace-server",
+  "environment": "{ENVIRONMENT}",
+  "url": "{SEPOLIA_URL}",
+  "port": "6004"
+}
