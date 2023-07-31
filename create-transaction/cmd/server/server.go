@@ -7,7 +7,9 @@ import (
 )
 
 type handlerIntf interface {
-	TransferNft(ctx *fiber.Ctx) error
+	SupplyMockERC20ToAccount(ctx *fiber.Ctx) error
+	SupplyNftMockERC721ToAccount(ctx *fiber.Ctx) error
+	CheckBalanceForAccount(ctx *fiber.Ctx) error
 }
 
 type Server struct {
@@ -30,7 +32,9 @@ func NewFiberServer(config config.Config, handler handlerIntf) Server {
 }
 
 func (srv Server) AddRoutes() Server {
-	srv.App.Post("/transfer-nft", srv.handler.TransferNft)
+	srv.App.Post("/supply-mockerc20-to-address", srv.handler.SupplyMockERC20ToAccount)
+	srv.App.Post("/supply-nft-mock-to-address", srv.handler.SupplyNftMockERC721ToAccount)
+	srv.App.Post("/balance-of", srv.handler.CheckBalanceForAccount)
 	return srv
 }
 

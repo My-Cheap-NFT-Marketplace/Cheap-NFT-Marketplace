@@ -5,7 +5,7 @@ import (
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/cmd/server"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/cmd/server/handler"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/internal"
-	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/internal/dal"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/internal/service/dal"
 	"log"
 )
 
