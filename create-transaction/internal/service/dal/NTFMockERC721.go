@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/cmd/server/handler/model"
-	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/internal/service/contracts/mockERC721"
 	dalModel "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/internal/service/dal/model"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
