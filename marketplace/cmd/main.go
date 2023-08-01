@@ -6,6 +6,7 @@ import (
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/server/handler"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal/service/dal"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal/service/dal/repository"
 	"log"
 )
 
@@ -15,7 +16,8 @@ func main() {
 		log.Fatal("error trying to start marketplace-server: ", err.Error())
 	}
 
-	dalSrv, err := dal.New(serviceConfig)
+	db := repository.NewConnection(serviceConfig)
+	dalSrv, err := dal.New(serviceConfig, db)
 	if err != nil {
 		log.Fatal("error getting connection with sepolia network: ", err.Error())
 	}

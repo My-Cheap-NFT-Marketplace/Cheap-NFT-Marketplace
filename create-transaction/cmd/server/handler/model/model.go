@@ -8,7 +8,3 @@ type AddTokenMockERC20ToAddress struct {
 type AddTokenMockERCM721ToAddress struct {
 	PrivateKey string `json:"privateKey"`
 }
-
-type GetBalanceForAddress struct {
-	Address string `json:"address"`
-}

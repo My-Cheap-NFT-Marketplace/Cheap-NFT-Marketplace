@@ -5,6 +5,8 @@ go 1.19
 require (
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/gofiber/fiber/v2 v2.48.0
+	github.com/jmoiron/sqlx v1.3.5
+	github.com/lib/pq v1.10.9
 	github.com/spf13/viper v1.16.0
 )
 

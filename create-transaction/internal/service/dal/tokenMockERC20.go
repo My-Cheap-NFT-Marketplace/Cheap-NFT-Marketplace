@@ -3,6 +3,7 @@ package dal
 import (
 	"context"
 	"crypto/ecdsa"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common/contract/tokenerc20/mock/built"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/cmd/server/handler/model"
 	dalModel "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/internal/service/dal/model"
 
@@ -16,7 +17,7 @@ const MockERC20Contract = "0xbd65c58D6F46d5c682Bf2f36306D461e3561C747"
 
 func (sc SepoliaConn) ExecSupplyMechanismsToAddMockERC20ToAccount(ctx context.Context, input model.AddTokenMockERC20ToAddress) (dalModel.TransactionOutput, error) {
 	contractAddress := common.HexToAddress(MockERC20Contract)
-	contractInstance, err := MockERC20.NewMockERC20(contractAddress, sc.conn)
+	contractInstance, err := built.NewMockERC20(contractAddress, sc.conn)
 	if err != nil {
 		return dalModel.TransactionOutput{}, err
 	}
@@ -75,24 +76,4 @@ func (sc SepoliaConn) ExecSupplyMechanismsToAddMockERC20ToAccount(ctx context.Co
 		To:          transaction.To().String(),
 		TokenAmount: input.Amount,
 	}, nil
-}
-
-func (sc SepoliaConn) ExecGetBalanceForAccount(ctx context.Context, input model.GetBalanceForAddress) (interface{}, error) {
-	contractAddress := common.HexToAddress(MockERC20Contract)
-	address := common.HexToAddress(input.Address)
-	//todo set context
-	callOpts := &bind.CallOpts{}
-
-	resp, err := MockERC20.NewMockERC20(contractAddress, sc.conn)
-	if err != nil {
-		return nil, err
-	}
-
-	balance, err := resp.BalanceOf(callOpts, address)
-	if err != nil {
-		return nil, err
-	}
-
-	//todo set differente exp for balance
-	return map[string]string{"balance": balance.String()}, nil
 }

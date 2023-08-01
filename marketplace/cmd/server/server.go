@@ -8,6 +8,7 @@ import (
 
 type handlerIntf interface {
 	NFTList(ctx *fiber.Ctx) error
+	AddNFTToSell(ctx *fiber.Ctx) error
 }
 
 type Server struct {
@@ -30,6 +31,7 @@ func NewFiberServer(config config.Config, handler handlerIntf) Server {
 }
 
 func (srv Server) AddRoutes() Server {
+	srv.App.Post("/add-nft-to-sell", srv.handler.AddNFTToSell)
 	srv.App.Get("/nft-list", srv.handler.NFTList)
 	return srv
 }

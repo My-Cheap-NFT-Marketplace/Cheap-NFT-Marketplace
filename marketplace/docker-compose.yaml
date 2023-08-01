@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+  db-marketplace:
+    container_name: db-marketplace
+    image: postgres:15
+    environment:
+      POSTGRES_USERNAME: ${MARKETPLACE_USER}
+      POSTGRES_PASSWORD: ${MARKETPLACE_PASSWORD}
+      POSTGRES_DB: marketplace
+    restart: always
+    ports:
+      - "5432:5432"
+
+  pg-admin:
+    container_name: pgadmin-cheap-nft-marketplace
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "80:80"
+    depends_on:
+      - db-marketplace

@@ -12,7 +12,6 @@ import (
 type Service interface {
 	GetSupplyMockERC20ToAccount(ctx context.Context, input model.AddTokenMockERC20ToAddress) (dalModel.TransactionOutput, error)
 	GetSupplyNftMockERC721ToAccount(ctx context.Context, input model.AddTokenMockERCM721ToAddress) (dalModel.TransactionOutput, error)
-	GetBalanceForAccount(ctx context.Context, input model.GetBalanceForAddress) (interface{}, error)
 }
 
 type Handler struct {
@@ -53,23 +52,6 @@ func (h Handler) SupplyNftMockERC721ToAccount(ctx *fiber.Ctx) error {
 	}
 
 	resp, err := h.service.GetSupplyNftMockERC721ToAccount(ctx.Context(), input)
-	if err != nil {
-		msg := map[string]string{"error": err.Error()}
-		return ctx.Status(fiber.StatusInternalServerError).JSON(msg)
-	}
-
-	return ctx.Status(fiber.StatusOK).JSON(resp)
-}
-
-func (h Handler) CheckBalanceForAccount(ctx *fiber.Ctx) error {
-	var input model.GetBalanceForAddress
-	body := ctx.Body()
-	err := json.Unmarshal(body, &input)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(err.Error())
-	}
-
-	resp, err := h.service.GetBalanceForAccount(ctx.Context(), input)
 	if err != nil {
 		msg := map[string]string{"error": err.Error()}
 		return ctx.Status(fiber.StatusInternalServerError).JSON(msg)

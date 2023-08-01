@@ -1,6 +1,11 @@
 {
   "serviceName": "marketplace-server",
   "environment": "{ENVIRONMENT}",
-  "url": "{SEPOLIA_URL}",
-  "port": "6004"
+  "port": "6004",
+  "database": {
+    "marketplace": {
+      "driverName": "postgres",
+      "dataSourceName": "postgres://{MARKETPLACE_USER}:{MARKETPLACE_PASSWORD}@{MARKETPLACE_HOST}:5432/marketplace?sslmode=disable"
+    }
+  }
 }

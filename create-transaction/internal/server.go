@@ -9,7 +9,6 @@ import (
 type SepoliaSrv interface {
 	ExecSupplyMechanismsToAddMockERC20ToAccount(ctx context.Context, input model.AddTokenMockERC20ToAddress) (dalModel.TransactionOutput, error)
 	ExecSupplyMechanismsToAddMockERC721ToAccount(ctx context.Context, input model.AddTokenMockERCM721ToAddress) (dalModel.TransactionOutput, error)
-	ExecGetBalanceForAccount(ctx context.Context, input model.GetBalanceForAddress) (interface{}, error)
 }
 
 type Service struct {
@@ -28,8 +27,4 @@ func (s Service) GetSupplyMockERC20ToAccount(ctx context.Context, input model.Ad
 
 func (s Service) GetSupplyNftMockERC721ToAccount(ctx context.Context, input model.AddTokenMockERCM721ToAddress) (dalModel.TransactionOutput, error) {
 	return s.sepoliaSrv.ExecSupplyMechanismsToAddMockERC721ToAccount(ctx, input)
-}
-
-func (s Service) GetBalanceForAccount(ctx context.Context, input model.GetBalanceForAddress) (interface{}, error) {
-	return s.sepoliaSrv.ExecGetBalanceForAccount(ctx, input)
 }

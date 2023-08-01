@@ -3,7 +3,9 @@ package dal
 import (
 	"context"
 	"crypto/ecdsa"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common/contract/nfterc721/mock/built"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/cmd/server/handler/model"
+
 	dalModel "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/create-transaction/internal/service/dal/model"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -16,7 +18,7 @@ const MockERC721Contract = "0xFCE9b92eC11680898c7FE57C4dDCea83AeabA3ff"
 
 func (sc SepoliaConn) ExecSupplyMechanismsToAddMockERC721ToAccount(ctx context.Context, input model.AddTokenMockERCM721ToAddress) (dalModel.TransactionOutput, error) {
 	contractAddress := common.HexToAddress(MockERC721Contract)
-	contractInstance, err := mockERC721.NewMockERC721(contractAddress, sc.conn)
+	contractInstance, err := built.NewMockERC721(contractAddress, sc.conn)
 	if err != nil {
 		return dalModel.TransactionOutput{}, err
 	}
