@@ -5,9 +5,9 @@ import (
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal/service/dal/repository/model"
 )
 
-func (db PgConnection) Exec(ctx context.Context, query string, args ...interface{}) (model.ExecResult, error) {
+func (db PgConnection) Exec(ctx context.Context, query string, args []interface{}) (model.ExecResult, error) {
 	var nftRecord model.ExecResult
-	result, err := db.conn.ExecContext(ctx, query, args)
+	result, err := db.conn.ExecContext(ctx, query, args...)
 	if err != nil {
 		return nftRecord, err
 	}
@@ -28,9 +28,9 @@ func (db PgConnection) Exec(ctx context.Context, query string, args ...interface
 }
 
 func (db PgConnection) ExecNftQuery(ctx context.Context, query string, args []interface{}) (model.NftToSell, error) {
-	row := db.conn.QueryRowContext(ctx, query, args...)
+	row := db.conn.QueryRowxContext(ctx, query, args...)
 	var nftRecord model.NftToSell
-	err := row.Scan(&nftRecord)
+	err := row.StructScan(&nftRecord)
 	if err != nil {
 		return nftRecord, err
 	}
@@ -38,8 +38,8 @@ func (db PgConnection) ExecNftQuery(ctx context.Context, query string, args []in
 	return nftRecord, nil
 }
 
-func (db PgConnection) SelectNftQuery(ctx context.Context, query string, args ...interface{}) ([]model.NftToSell, error) {
-	rows, err := db.conn.QueryxContext(ctx, query, args)
+func (db PgConnection) SelectNftQuery(ctx context.Context, query string, args []interface{}) ([]model.NftToSell, error) {
+	rows, err := db.conn.QueryxContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (db PgConnection) SelectNftQuery(ctx context.Context, query string, args ..
 	defer rows.Close()
 	for rows.Next() {
 		var account model.NftToSell
-		err = rows.Scan(&account)
+		err = rows.StructScan(&account)
 		if err != nil {
 			return nil, err
 		}

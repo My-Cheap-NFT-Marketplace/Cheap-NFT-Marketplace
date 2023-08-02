@@ -24,30 +24,27 @@ func (con DataAccessLayer) CreateNftRecordToSell(ctx context.Context, input mode
 		input.TokenId,
 		input.TokenStandard,
 		input.Status,
-		input.CreatedAt,
-		input.UpdatedAt,
 	}
+
 	query := `
 		INSERT INTO public.nfts_to_sell (
-		  tokenId,
+		  token_id,
 		  owner,
-		  contractAddress,
+		  contract_address,
 		  creator,
-		  tokenStandard,
-		  status,
-		  createdAt,
-		  updatedAt
+		  token_standard,
+		  status
 		) VALUES (
-		  $1, $2, $3, $4, $5, $6, $7, $8
+		  $1, $2, $3, $4, $5, $6
 		) RETURNING
-		  tokenId,
+		  token_id,
 		  owner,
-		  contractAddress,
+		  contract_address,
 		  creator,
-		  tokenStandard,
+		  token_standard,
 		  status,
-		  createdAt,
-		  updatedAt
+		  created_at,
+		  updated_at
 	`
 
 	resp, err := con.dbConnection.ExecNftQuery(ctx, query, args)
@@ -59,58 +56,46 @@ func (con DataAccessLayer) CreateNftRecordToSell(ctx context.Context, input mode
 }
 
 // TODO IMPROVE QUERY TO AVOID CODE DUPLICATED
-func (con DataAccessLayer) GetNftsToSell(ctx context.Context, input map[string]interface{}) ([]model.NftToSell, error) {
+func (con DataAccessLayer) GetNftsToSell(ctx context.Context, input model.QueryNft) ([]model.NftToSell, error) {
 	var where []string
-
+	var args []interface{}
 	query := `
 			SELECT 
-			  tokenId,
+			  token_id,
 			  owner,
-			  contractAddress,
+			  contract_address,
 			  creator,
-			  tokenStandard,
+			  token_standard,
 			  status,
-			  createdAt,
-			  updatedAt
-			FROM public.nfts_to_sell 
-			WHERE 
+			  created_at,
+			  updated_at
+			FROM public.nfts_to_sell
 	`
 
-	if ids, ok := input["tokenId"]; ok {
-		var strIds []string
-		for _, value := range ids.([]int32) {
-			strIds = append(strIds, strconv.Itoa(int(value)))
-		}
-		query += `tokenId IN (` + strings.Join(strIds, ", ") + `)`
-		where = append(where, query)
+	if input.TokenId != nil {
+		args = append(args, *input.TokenId)
+		tokenId := `token_id = $` + strconv.Itoa(len(args))
+		where = append(where, tokenId)
 	}
 
-	if ids, ok := input["creator"]; ok {
-		var strIds []string
-		for _, value := range ids.([]int32) {
-			strIds = append(strIds, strconv.Itoa(int(value)))
-		}
-		query += `creator IN (` + strings.Join(strIds, ", ") + `)`
-		where = append(where, query)
-
+	if input.Owner != nil {
+		args = append(args, *input.Owner)
+		owner := `owner = $` + strconv.Itoa(len(args))
+		where = append(where, owner)
 	}
 
-	whereStr := strings.Join(where, " OR ")
-	query += whereStr
+	whereStr := strings.Join(where, " AND ")
+	query += `WHERE ` + whereStr
 
-	limit := `30`
-	if value, ok := input["limit"].(string); ok {
-		limit = value
+	if input.Limit != nil {
+		query += `LIMIT ` + *input.Limit
 	}
 
-	query += `LIMIT ` + limit
-
-	if offset, ok := input["offset"].(string); ok {
-		query += `
-			OFFSET ` + offset
+	if input.Offset != nil {
+		query += `OFFSET ` + *input.Offset
 	}
 
-	records, err := con.dbConnection.SelectNftQuery(ctx, query)
+	records, err := con.dbConnection.SelectNftQuery(ctx, query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -122,14 +107,15 @@ func (con DataAccessLayer) UpdateNftToSell(ctx context.Context, input model.NftT
 	var nftToSell model.NftToSell
 	var args []interface{}
 	var set []string
+	var where []string
 
-	if input.TokenId == "" {
+	if input.TokenId == nil {
 		return nftToSell, errors.New("tokenId is a value needed")
 	}
 
-	if input.Status != "" {
-		set = append(set, `status = $1`)
-		args = append(args, input.Status)
+	if input.Status == nil {
+		args = append(args, *input.Status)
+		set = append(set, `status = $`+strconv.Itoa(len(args)))
 	}
 
 	if len(set) == 0 {
@@ -137,27 +123,28 @@ func (con DataAccessLayer) UpdateNftToSell(ctx context.Context, input model.NftT
 	}
 
 	updatedAt := time.Now().String()
-	set = append(set, `updatedAt = $2`)
 	args = append(args, updatedAt)
+	set = append(set, `updated_at = $`+strconv.Itoa(len(args)))
 
-	args = append(args, input.TokenId)
+	args = append(args, *input.TokenId)
+	where = append(where, `token_id = $`+strconv.Itoa(len(args)))
 	query := fmt.Sprintf(`
 		UPDATE	
 			public.nfts_to_sell
 		SET
 			%s
 		WHERE
-			tokenId = $3
+			%s
 		RETURNING
-			  tokenId,
-			  owner,
-			  contractAddress,
-			  creator,
-			  tokenStandard,
-			  status,
-			  createdAt,
-			  updatedAt
-	`, strings.Join(set, ", "))
+		  token_id,
+		  owner,
+		  contract_address,
+		  creator,
+		  token_standard,
+		  status,
+		  created_at,
+		  updated_at
+	`, strings.Join(set, ", "), strings.Join(where, " AND "))
 
 	resp, err := con.dbConnection.ExecNftQuery(ctx, query, args)
 	if err != nil {
@@ -169,17 +156,17 @@ func (con DataAccessLayer) UpdateNftToSell(ctx context.Context, input model.NftT
 
 func (con DataAccessLayer) DeleteNftToSell(ctx context.Context, input model.NftToSell) (model.ExecResult, error) {
 	var resp model.ExecResult
-	if input.TokenId == "" {
+	if input.TokenId == nil {
 		return resp, errors.New("tokenId is a value needed")
 	}
 
 	var args []interface{}
-	args = append(args, input.TokenId)
+	args = append(args, *input.TokenId)
 	query := `
 		DELETE FROM	
 			public.nfts_to_sell
 		WHERE
-			 tokenId = $1
+			 token_id = $1
 		`
 
 	resp, err := con.dbConnection.Exec(ctx, query, args)
