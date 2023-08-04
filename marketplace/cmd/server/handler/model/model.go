@@ -1,16 +1,12 @@
 package model
 
-type AddNFTToSell struct {
-	TokenId         *string `json:"tokenId"`
-	Owner           *string `json:"owner"`
-	ContractAddress *string `json:"contractAddress"`
-	Creator         *string `json:"creator"`
-	TokenStandard   *string `json:"tokenStandard"`
+type InputToGetMyNftList struct {
+	PrivateKey  string `json:"privateKey"`
+	NftContract string `json:"nftContract,omitempty"`
 }
 
-type GetNFTs struct {
-	TokenId *string `json:"tokenId"`
-	Owner   *string `json:"owner"`
-	Limit   *string `default:"20" json:"limit"`
-	Offset  *string `default:"0" json:"offset"`
+type InputToPutNftOnSale struct {
+	PrivateKey  string `json:"privateKey,omitempty"`
+	NftContract string `json:"nftContract,omitempty"`
+	TokenId     string `json:"tokenId,omitempty"`
 }

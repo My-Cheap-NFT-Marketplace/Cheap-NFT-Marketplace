@@ -6,19 +6,20 @@ import (
 )
 
 type Config struct {
-	ServiceName string
-	Environment string
-	Port        string
-	Database    Database
+	ServiceName      string
+	Environment      string
+	Port             string
+	Url              string
+	NftContracts     NftContracts
+	AuctionContracts AuctionContracts
 }
 
-type Database struct {
-	Marketplace Platform
+type NftContracts struct {
+	MockERC721 string
 }
 
-type Platform struct {
-	DriverName     string
-	DataSourceName string
+type AuctionContracts struct {
+	Marketplace string
 }
 
 func ReadConfig() (Config, error) {
@@ -36,17 +37,9 @@ func ReadConfig() (Config, error) {
 
 	viper.AutomaticEnv()
 	env := viper.GetString("ENVIRONMENT")
-	marketplaceDbUser := viper.GetString("MARKETPLACE_USER")
-	marketplaceDbPassword := viper.GetString("MARKETPLACE_PASSWORD")
-	marketplaceHost := viper.GetString("MARKETPLACE_HOST")
+	url := viper.GetString("SEPOLIA_URL")
 
-	config.Database.Marketplace.DataSourceName = strings.Replace(
-		config.Database.Marketplace.DataSourceName, "{MARKETPLACE_USER}", marketplaceDbUser, 1)
-	config.Database.Marketplace.DataSourceName = strings.Replace(
-		config.Database.Marketplace.DataSourceName, "{MARKETPLACE_PASSWORD}", marketplaceDbPassword, 1)
-	config.Database.Marketplace.DataSourceName = strings.Replace(
-		config.Database.Marketplace.DataSourceName, "{MARKETPLACE_HOST}", marketplaceHost, 1)
+	config.Url = strings.Replace(config.Url, "{SEPOLIA_URL}", url, 1)
 	config.Environment = strings.Replace(config.Environment, "{ENVIRONMENT}", env, 1)
-
 	return config, nil
 }

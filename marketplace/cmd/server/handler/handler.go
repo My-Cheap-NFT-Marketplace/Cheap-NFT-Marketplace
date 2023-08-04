@@ -2,16 +2,15 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/config"
-	input "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/server/handler/model"
-	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal/service/dal/repository/model"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/server/handler/model"
 	"github.com/gofiber/fiber/v2"
 )
 
 type Service interface {
-	NFTListForAWallet(ctx context.Context, input input.GetNFTs) ([]model.NftToSell, error)
-	UserAddNFTToSell(ctx context.Context, input input.AddNFTToSell) (model.NftToSell, error)
+	NFTListForAddress(ctx context.Context, input model.InputToGetMyNftList) ([]interface{}, error)
+	PutMyNftOnSale(ctx context.Context, input model.InputToPutNftOnSale) (interface{}, error)
 }
 
 type Handler struct {
@@ -27,30 +26,32 @@ func New(config config.Config, service Service) Handler {
 }
 
 func (h Handler) NFTList(ctx *fiber.Ctx) error {
-	body := ctx.Body()
-	var input input.GetNFTs
-	err := json.Unmarshal(body, &input)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(err)
+	inputData, ok := ctx.Locals("inputData").(model.InputToGetMyNftList)
+	if !ok {
+		err := errors.New("error getting validated input from context")
+		return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]error{"error": err})
 	}
-	resp, err := h.service.NFTListForAWallet(ctx.Context(), input)
+
+	resp, err := h.service.NFTListForAddress(ctx.Context(), inputData)
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(err)
+		msg := map[string]error{"error": err}
+		return ctx.Status(fiber.StatusInternalServerError).JSON(msg)
 	}
+
 	return ctx.Status(fiber.StatusOK).JSON(resp)
 }
 
-func (h Handler) AddNFTToSell(ctx *fiber.Ctx) error {
-	body := ctx.Body()
-	var input input.AddNFTToSell
-	err := json.Unmarshal(body, &input)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(err)
+func (h Handler) PutNftOnSale(ctx *fiber.Ctx) error {
+	inputData, ok := ctx.Locals("inputData").(model.InputToPutNftOnSale)
+	if !ok {
+		err := errors.New("error getting validated input from context")
+		return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]error{"error": err})
 	}
 
-	resp, err := h.service.UserAddNFTToSell(ctx.Context(), input)
+	resp, err := h.service.PutMyNftOnSale(ctx.Context(), inputData)
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(err)
+		msg := map[string]error{"error": err}
+		return ctx.Status(fiber.StatusInternalServerError).JSON(msg)
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(resp)

@@ -1,11 +1,14 @@
 {
   "serviceName": "marketplace-server",
   "environment": "{ENVIRONMENT}",
+  "url": "{SEPOLIA_URL}",
   "port": "6004",
-  "database": {
-    "marketplace": {
-      "driverName": "postgres",
-      "dataSourceName": "postgres://{MARKETPLACE_USER}:{MARKETPLACE_PASSWORD}@{MARKETPLACE_HOST}:5432/marketplace?sslmode=disable"
-    }
+  "nftContracts":
+    {
+      "mockERC721": "0xFCE9b92eC11680898c7FE57C4dDCea83AeabA3ff"
+    },
+  "AuctionContracts":
+  {
+    "marketplace": "0x597C9bC3F00a4Df00F85E9334628f6cDf03A1184"
   }
 }

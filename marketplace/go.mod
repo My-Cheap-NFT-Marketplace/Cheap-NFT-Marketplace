@@ -3,11 +3,13 @@ module github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace
 go 1.19
 
 require (
+	github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common v0.0.0-20230731192300-327d876a6fb5
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/gofiber/fiber/v2 v2.48.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.9
 	github.com/spf13/viper v1.16.0
+
 )
 
 require (

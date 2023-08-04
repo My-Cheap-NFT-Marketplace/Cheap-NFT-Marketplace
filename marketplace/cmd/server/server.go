@@ -3,12 +3,13 @@ package server
 import (
 	"fmt"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/config"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/server/handler/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
 type handlerIntf interface {
 	NFTList(ctx *fiber.Ctx) error
-	AddNFTToSell(ctx *fiber.Ctx) error
+	PutNftOnSale(ctx *fiber.Ctx) error
 }
 
 type Server struct {
@@ -31,8 +32,8 @@ func NewFiberServer(config config.Config, handler handlerIntf) Server {
 }
 
 func (srv Server) AddRoutes() Server {
-	srv.App.Post("/add-nft-to-sell", srv.handler.AddNFTToSell)
-	srv.App.Post("/nft-list", srv.handler.NFTList)
+	srv.App.Post("/my-nft-list", middleware.ValidateInputToNFTList, srv.handler.NFTList)
+	srv.App.Post("/put-nft-on-sale", middleware.ValidateInputToPutNftOnSale, srv.handler.PutNftOnSale)
 	return srv
 }
 
