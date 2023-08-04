@@ -2,10 +2,10 @@ package mockERC721
 
 import (
 	"context"
+	myCommon "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common"
 	mockContract "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common/contract/nfterc721/mock/built"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/config"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal/impl"
-	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/platform"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -36,7 +36,7 @@ func New(config config.Config) (MockERC721Impl, error) {
 }
 
 func (dal MockERC721Impl) BalanceOf(ctx context.Context, privateKey string) (*big.Int, error) {
-	userAddress, err := platform.GetUserAddress(privateKey)
+	userAddress, err := myCommon.GetUserAddress(privateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (dal MockERC721Impl) BalanceOf(ctx context.Context, privateKey string) (*bi
 }
 
 func (dal MockERC721Impl) TokenOfOwnerByIndex(ctx context.Context, privateKey string, index *big.Int) (*big.Int, error) {
-	userAddress, err := platform.GetUserAddress(privateKey)
+	userAddress, err := myCommon.GetUserAddress(privateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (dal MockERC721Impl) TokenOfOwnerByIndex(ctx context.Context, privateKey st
 
 func (dal MockERC721Impl) PutNftOnSale(ctx context.Context, privateKey string, tokenId *big.Int) (impl.TransactionOutputObj, error) {
 	var trx impl.TransactionOutputObj
-	trxObj, err := platform.CreateTransactionObject(ctx, dal.conn, privateKey, &dal.config.AuctionContracts.Marketplace, nil, nil)
+	trxObj, err := myCommon.CreateTransactionObject(ctx, dal.conn, privateKey, &dal.config.AuctionContracts.Marketplace, nil, nil)
 	if err != nil {
 		return trx, err
 	}
