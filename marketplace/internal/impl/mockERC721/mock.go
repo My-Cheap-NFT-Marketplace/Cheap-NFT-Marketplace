@@ -2,6 +2,7 @@ package mockERC721
 
 import (
 	"context"
+	"crypto/ecdsa"
 	myCommon "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common"
 	contract "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common/contract/nfterc721/mock/built"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/config"
@@ -34,12 +35,8 @@ func New(config config.Config) (MockERC721Impl, error) {
 	return mockERC721Impl, nil
 }
 
-func (dal MockERC721Impl) BalanceOf(ctx context.Context, privateKey string) (*big.Int, error) {
-	userAddress, err := myCommon.GetUserAddress(privateKey)
-	if err != nil {
-		return nil, err
-	}
-
+func (dal MockERC721Impl) BalanceOf(ctx context.Context, privateKey *ecdsa.PrivateKey) (*big.Int, error) {
+	userAddress := myCommon.GetUserAddress(privateKey)
 	balance, err := dal.contract.BalanceOf(&bind.CallOpts{}, userAddress)
 	if err != nil {
 		return nil, err
@@ -49,12 +46,8 @@ func (dal MockERC721Impl) BalanceOf(ctx context.Context, privateKey string) (*bi
 
 }
 
-func (dal MockERC721Impl) TokenOfOwnerByIndex(ctx context.Context, privateKey string, index *big.Int) (*big.Int, error) {
-	userAddress, err := myCommon.GetUserAddress(privateKey)
-	if err != nil {
-		return nil, err
-	}
-
+func (dal MockERC721Impl) TokenOfOwnerByIndex(ctx context.Context, privateKey *ecdsa.PrivateKey, index *big.Int) (*big.Int, error) {
+	userAddress := myCommon.GetUserAddress(privateKey)
 	tokenId, err := dal.contract.TokenOfOwnerByIndex(&bind.CallOpts{}, userAddress, index)
 	if err != nil {
 		return nil, err
@@ -63,19 +56,20 @@ func (dal MockERC721Impl) TokenOfOwnerByIndex(ctx context.Context, privateKey st
 	return tokenId, nil
 }
 
-func (dal MockERC721Impl) PutNftOnSale(ctx context.Context, privateKey string, tokenId *big.Int) (impl.TransactionOutputObj, error) {
+func (dal MockERC721Impl) PutNftOnSale(ctx context.Context, privateKey *ecdsa.PrivateKey, tokenId *big.Int) (impl.TransactionOutputObj, error) {
 	var trx impl.TransactionOutputObj
-	trxObj, err := myCommon.CreateTransactionObject(ctx, dal.conn, privateKey, &dal.config.AuctionContracts.Marketplace, nil, nil)
+	trxObj, err := myCommon.CreateTransactionObject(ctx, dal.conn, privateKey)
 	if err != nil {
 		return trx, err
 	}
 
-	auth, err := bind.NewKeyedTransactorWithChainID(trxObj.PrivateKey, trxObj.ChainID)
+	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, trxObj.ChainID)
 	if err != nil {
 		return trx, err
 	}
 
-	transaction, err := dal.contract.Approve(auth, trxObj.To, tokenId)
+	toAddress := common.HexToAddress(dal.config.AuctionContracts.Marketplace)
+	transaction, err := dal.contract.Approve(auth, toAddress, tokenId)
 	if err != nil {
 		return trx, err
 	}

@@ -9,8 +9,8 @@ import (
 )
 
 type Service interface {
-	NFTListForAddress(ctx context.Context, input model.InputToGetMyNftList) ([]interface{}, error)
-	PutMyNftOnSale(ctx context.Context, input model.InputToPutNftOnSale) (interface{}, error)
+	NFTListForAddress(ctx context.Context, input model.InputToGetMyNftListConverted) ([]interface{}, error)
+	PutMyNftOnSale(ctx context.Context, input model.InputToPutNftOnSaleConverted) (interface{}, error)
 	BuyNftOnSale(ctx context.Context, input model.InputToBuyNftConverted) (interface{}, error)
 }
 
@@ -27,7 +27,7 @@ func New(config config.Config, service Service) Handler {
 }
 
 func (h Handler) NFTList(ctx *fiber.Ctx) error {
-	inputData, ok := ctx.Locals("inputData").(model.InputToGetMyNftList)
+	inputData, ok := ctx.Locals("inputData").(model.InputToGetMyNftListConverted)
 	if !ok {
 		err := errors.New("error getting validated input from context")
 		return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]error{"error": err})
@@ -43,7 +43,7 @@ func (h Handler) NFTList(ctx *fiber.Ctx) error {
 }
 
 func (h Handler) PutNftOnSale(ctx *fiber.Ctx) error {
-	inputData, ok := ctx.Locals("inputData").(model.InputToPutNftOnSale)
+	inputData, ok := ctx.Locals("inputData").(model.InputToPutNftOnSaleConverted)
 	if !ok {
 		err := errors.New("error getting validated input from context")
 		return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]error{"error": err})

@@ -11,10 +11,10 @@ import (
 )
 
 type NftStandard interface {
-	BalanceOf(ctx context.Context, privateKey string) (*big.Int, error)
-	TokenOfOwnerByIndex(ctx context.Context, privateKey string, index *big.Int) (*big.Int, error)
+	BalanceOf(ctx context.Context, privateKey *ecdsa.PrivateKey) (*big.Int, error)
+	TokenOfOwnerByIndex(ctx context.Context, privateKey *ecdsa.PrivateKey, index *big.Int) (*big.Int, error)
 	BuildNtfObject(ctx context.Context, tokenID *big.Int) (impl.TokenObj, error)
-	PutNftOnSale(ctx context.Context, privateKey string, tokenId *big.Int) (impl.TransactionOutputObj, error)
+	PutNftOnSale(ctx context.Context, privateKey *ecdsa.PrivateKey, tokenId *big.Int) (impl.TransactionOutputObj, error)
 }
 
 type AuctionStandard interface {
@@ -33,7 +33,7 @@ func New(nftContracts map[string]NftStandard, auctionContracts map[string]Auctio
 	}
 }
 
-func (s Service) NFTListForAddress(ctx context.Context, input input.InputToGetMyNftList) ([]interface{}, error) {
+func (s Service) NFTListForAddress(ctx context.Context, input input.InputToGetMyNftListConverted) ([]interface{}, error) {
 	nftContract, err := s.getNfContractInstance(input.NftContract)
 	if err != nil {
 		return nil, err
@@ -60,15 +60,13 @@ func (s Service) NFTListForAddress(ctx context.Context, input input.InputToGetMy
 	return tokenIdList, nil
 }
 
-func (s Service) PutMyNftOnSale(ctx context.Context, input input.InputToPutNftOnSale) (interface{}, error) {
+func (s Service) PutMyNftOnSale(ctx context.Context, input input.InputToPutNftOnSaleConverted) (interface{}, error) {
 	nftContract, err := s.getNfContractInstance(input.NftContract)
 	if err != nil {
 		return nil, err
 	}
 	var trx impl.TransactionOutputObj
-	tokenId := new(big.Int)
-	tokenId.SetString(input.TokenId, 10)
-	trx, err = nftContract.PutNftOnSale(ctx, input.PrivateKey, tokenId)
+	trx, err = nftContract.PutNftOnSale(ctx, input.PrivateKey, input.TokenId)
 	if err != nil {
 		return trx, err
 	}

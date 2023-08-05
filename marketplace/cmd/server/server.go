@@ -33,8 +33,8 @@ func NewFiberServer(config config.Config, handler handlerIntf) Server {
 }
 
 func (srv Server) AddRoutes() Server {
-	srv.App.Post("/my-nft-list", middleware.ValidateInputToNFTList, srv.handler.NFTList)
-	srv.App.Post("/put-nft-on-sale", middleware.ValidateInputToPutNftOnSale, srv.handler.PutNftOnSale)
+	srv.App.Post("/my-nft-list", middleware.ValidateInputToNFTList, middleware.ConvertInputToNFTList, srv.handler.NFTList)
+	srv.App.Post("/put-nft-on-sale", middleware.ValidateInputToPutNftOnSale, middleware.ConvertInputToPutNftOnSale, srv.handler.PutNftOnSale)
 	srv.App.Post("/put-order-to-buy-nft", middleware.ValidateInputToBuyNft, middleware.ConvertInputToBuyNft, srv.handler.BuyNft)
 
 	return srv

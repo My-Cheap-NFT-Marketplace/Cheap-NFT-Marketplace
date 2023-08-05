@@ -9,53 +9,55 @@ import (
 
 func ValidateInputToPutNftOnSale(ctx *fiber.Ctx) error {
 	body := ctx.Body()
-	var input model.InputToPutNftOnSale
+	var input model.RawInputToPutNftOnSale
 	err := json.Unmarshal(body, &input)
 	if err != nil {
 		return errors.New("input could not be unmarshalled")
 	}
 
-	if input.NftContract == "" {
+	if input.NftContract == nil {
 		return errors.New("NftContract can not be empty")
 	}
 
-	if input.PrivateKey == "" {
+	if input.PrivateKey == nil {
 		return errors.New("PrivateKey can not be empty")
 	}
 
-	if input.TokenId == "" {
+	pvkey := *input.PrivateKey
+	if pvkey[0:2] == "0x" {
+		*input.PrivateKey = pvkey[2:]
+	}
+
+	if input.TokenId == nil {
 		return errors.New("TokenId can not be empty")
 	}
 
-	if input.PrivateKey[:2] == "0x" {
-		input.PrivateKey = input.PrivateKey[2:]
-	}
-
-	ctx.Locals("inputData", input)
+	ctx.Locals("rawInputData", input)
 	return ctx.Next()
 }
 
 func ValidateInputToNFTList(ctx *fiber.Ctx) error {
 	body := ctx.Body()
-	var input model.InputToGetMyNftList
+	var input model.RawInputToGetMyNftList
 	err := json.Unmarshal(body, &input)
 	if err != nil {
 		return errors.New("input could not be unmarshalled")
 	}
 
-	if input.NftContract == "" {
+	if input.NftContract == nil {
 		return errors.New("NftContract can not be empty")
 	}
 
-	if input.PrivateKey == "" {
+	if input.PrivateKey == nil {
 		return errors.New("PrivateKey can not be empty")
 	}
 
-	if input.PrivateKey[:2] == "0x" {
-		input.PrivateKey = input.PrivateKey[2:]
+	pvkey := *input.PrivateKey
+	if pvkey[0:2] == "0x" {
+		*input.PrivateKey = pvkey[2:]
 	}
 
-	ctx.Locals("inputData", input)
+	ctx.Locals("rawInputData", input)
 	return ctx.Next()
 }
 

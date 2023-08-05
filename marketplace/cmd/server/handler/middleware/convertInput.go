@@ -28,3 +28,36 @@ func ConvertInputToBuyNft(ctx *fiber.Ctx) error {
 	ctx.Locals("inputData", convertedInput)
 	return ctx.Next()
 }
+
+func ConvertInputToNFTList(ctx *fiber.Ctx) error {
+	inputData, _ := ctx.Locals("rawInputData").(model.RawInputToGetMyNftList)
+	var convertedInput model.InputToGetMyNftListConverted
+	convertedInput.NftContract = *inputData.NftContract
+
+	pvKey, err := crypto.HexToECDSA(*inputData.PrivateKey)
+	if err != nil {
+		return err
+	}
+	convertedInput.PrivateKey = pvKey
+	ctx.Locals("inputData", convertedInput)
+	return ctx.Next()
+}
+
+func ConvertInputToPutNftOnSale(ctx *fiber.Ctx) error {
+	inputData, _ := ctx.Locals("rawInputData").(model.RawInputToPutNftOnSale)
+	var convertedInput model.InputToPutNftOnSaleConverted
+	convertedInput.NftContract = *inputData.NftContract
+
+	pvKey, err := crypto.HexToECDSA(*inputData.PrivateKey)
+	if err != nil {
+		return err
+	}
+	convertedInput.PrivateKey = pvKey
+
+	tokenId := new(big.Int)
+	tokenId.SetString(*inputData.TokenId, 10)
+	convertedInput.TokenId = tokenId
+
+	ctx.Locals("inputData", convertedInput)
+	return ctx.Next()
+}

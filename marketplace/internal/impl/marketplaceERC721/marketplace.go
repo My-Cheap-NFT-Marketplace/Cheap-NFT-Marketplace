@@ -83,8 +83,8 @@ func (dal MarketPlaceImpl) PutOrderToBuyNft(ctx context.Context, privateKey *ecd
 	if err != nil {
 		return trx, err
 	}
-
-	sellerKey := "9fdebc6a799893cba2ea2bf5e46a0088e0c929e341c23e48c4c223a3a96a4c79"
+	sellerKey := "45f302b77d45bc47d73e531fd28663c65889ae145b5f9f083f917c2cb907075d"
+	//sellerKey := "9fdebc6a799893cba2ea2bf5e46a0088e0c929e341c23e48c4c223a3a96a4c79"
 	pvKey2, err := crypto.HexToECDSA(sellerKey)
 	if err != nil {
 		return trx, err
