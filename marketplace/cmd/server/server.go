@@ -10,6 +10,7 @@ import (
 type handlerIntf interface {
 	NFTList(ctx *fiber.Ctx) error
 	PutNftOnSale(ctx *fiber.Ctx) error
+	BuyNft(ctx *fiber.Ctx) error
 }
 
 type Server struct {
@@ -34,6 +35,8 @@ func NewFiberServer(config config.Config, handler handlerIntf) Server {
 func (srv Server) AddRoutes() Server {
 	srv.App.Post("/my-nft-list", middleware.ValidateInputToNFTList, srv.handler.NFTList)
 	srv.App.Post("/put-nft-on-sale", middleware.ValidateInputToPutNftOnSale, srv.handler.PutNftOnSale)
+	srv.App.Post("/put-order-to-buy-nft", middleware.ValidateInputToBuyNft, middleware.ConvertInputToBuyNft, srv.handler.BuyNft)
+
 	return srv
 }
 

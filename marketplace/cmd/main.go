@@ -5,7 +5,9 @@ import (
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/server"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/server/handler"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal"
+	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal/impl/marketplaceERC721"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal/impl/mockERC721"
+
 	"log"
 )
 
@@ -15,19 +17,37 @@ func main() {
 		log.Fatal("error trying to start marketplace-server: ", err.Error())
 	}
 
-	mockERC721Impl, err := mockERC721.New(serviceConfig)
-	if err != nil {
-		log.Fatal("error getting connection with sepolia network: ", err.Error())
-	}
+	nftImplementations := buildNftContractsList(serviceConfig)
+	auctionImplementations := buildAuctionContractsList(serviceConfig)
 
-	nftImplementations := map[string]internal.ERC721Standard{
-		serviceConfig.NftContracts.MockERC721: mockERC721Impl,
-	}
-
-	srv := internal.New(nftImplementations)
+	srv := internal.New(nftImplementations, auctionImplementations)
 	hndlr := handler.New(serviceConfig, srv)
 	err = server.NewFiberServer(serviceConfig, hndlr).AddRoutes().Start()
 	if err != nil {
 		log.Fatal("error creating marketplace-server: ", err.Error())
+	}
+}
+
+// todo make server resilient when a contract instance throws error
+func buildNftContractsList(serviceConfig config.Config) map[string]internal.NftStandard {
+	mockERC721Impl, err := mockERC721.New(serviceConfig)
+	if err != nil {
+		log.Fatal("error getting instance of mockERC721 nft contract: ", err.Error())
+	}
+
+	return map[string]internal.NftStandard{
+		serviceConfig.NftContracts.MockERC721: mockERC721Impl,
+	}
+}
+
+// todo make server resilient when a contract instance throws error
+func buildAuctionContractsList(serviceConfig config.Config) map[string]internal.AuctionStandard {
+	marketplaceERC721Impl, err := marketplaceERC721.New(serviceConfig)
+	if err != nil {
+		log.Fatal("error getting instance of marketplaceERC721 auction contract: ", err.Error())
+	}
+
+	return map[string]internal.AuctionStandard{
+		serviceConfig.AuctionContracts.Marketplace: marketplaceERC721Impl,
 	}
 }

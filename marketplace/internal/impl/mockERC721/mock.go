@@ -3,7 +3,7 @@ package mockERC721
 import (
 	"context"
 	myCommon "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common"
-	mockContract "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common/contract/nfterc721/mock/built"
+	contract "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common/contract/nfterc721/mock/built"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/config"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/internal/impl"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -17,7 +17,7 @@ const tokenStandardERC721 = "ERC-721"
 type MockERC721Impl struct {
 	config   config.Config
 	conn     *ethclient.Client
-	contract *mockContract.MockERC721
+	contract *contract.MockERC721
 }
 
 func New(config config.Config) (MockERC721Impl, error) {
@@ -27,12 +27,11 @@ func New(config config.Config) (MockERC721Impl, error) {
 		return mockERC721Impl, err
 	}
 
-	instance, err := mockContract.NewMockERC721(common.HexToAddress(config.NftContracts.MockERC721), conn)
-	return MockERC721Impl{
-		config:   config,
-		conn:     conn,
-		contract: instance,
-	}, nil
+	instance, err := contract.NewMockERC721(common.HexToAddress(config.NftContracts.MockERC721), conn)
+	mockERC721Impl.config = config
+	mockERC721Impl.conn = conn
+	mockERC721Impl.contract = instance
+	return mockERC721Impl, nil
 }
 
 func (dal MockERC721Impl) BalanceOf(ctx context.Context, privateKey string) (*big.Int, error) {

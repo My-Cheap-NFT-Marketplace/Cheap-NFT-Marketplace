@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"errors"
 	"fmt"
 	input "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/server/handler/model"
@@ -9,41 +10,47 @@ import (
 	"math/big"
 )
 
-type ERC721Standard interface {
+type NftStandard interface {
 	BalanceOf(ctx context.Context, privateKey string) (*big.Int, error)
 	TokenOfOwnerByIndex(ctx context.Context, privateKey string, index *big.Int) (*big.Int, error)
 	BuildNtfObject(ctx context.Context, tokenID *big.Int) (impl.TokenObj, error)
 	PutNftOnSale(ctx context.Context, privateKey string, tokenId *big.Int) (impl.TransactionOutputObj, error)
 }
 
-type Service struct {
-	contracts map[string]ERC721Standard
+type AuctionStandard interface {
+	PutOrderToBuyNft(ctx context.Context, privateKey *ecdsa.PrivateKey, tokenId *big.Int, bid *big.Int) (impl.TransactionOutputObj, error)
 }
 
-func New(contracts map[string]ERC721Standard) Service {
+type Service struct {
+	nftContracts     map[string]NftStandard
+	auctionContracts map[string]AuctionStandard
+}
+
+func New(nftContracts map[string]NftStandard, auctionContracts map[string]AuctionStandard) Service {
 	return Service{
-		contracts: contracts,
+		nftContracts:     nftContracts,
+		auctionContracts: auctionContracts,
 	}
 }
 
 func (s Service) NFTListForAddress(ctx context.Context, input input.InputToGetMyNftList) ([]interface{}, error) {
-	contract, err := s.getContractInstance(input.NftContract)
+	nftContract, err := s.getNfContractInstance(input.NftContract)
 	if err != nil {
 		return nil, err
 	}
 
-	balance, err := contract.BalanceOf(ctx, input.PrivateKey)
+	balance, err := nftContract.BalanceOf(ctx, input.PrivateKey)
 	if err != nil {
 		return nil, err
 	}
 
 	var tokenIdList []interface{}
 	for i := big.NewInt(0); i.Cmp(balance) < 0; i.Add(i, big.NewInt(1)) {
-		tokenID, err := contract.TokenOfOwnerByIndex(ctx, input.PrivateKey, i)
+		tokenID, err := nftContract.TokenOfOwnerByIndex(ctx, input.PrivateKey, i)
 		if err != nil {
 			return nil, err
 		}
-		tokenObj, err := contract.BuildNtfObject(ctx, tokenID)
+		tokenObj, err := nftContract.BuildNtfObject(ctx, tokenID)
 		if err != nil {
 			return nil, err
 		}
@@ -54,24 +61,46 @@ func (s Service) NFTListForAddress(ctx context.Context, input input.InputToGetMy
 }
 
 func (s Service) PutMyNftOnSale(ctx context.Context, input input.InputToPutNftOnSale) (interface{}, error) {
-	contract, err := s.getContractInstance(input.NftContract)
+	nftContract, err := s.getNfContractInstance(input.NftContract)
 	if err != nil {
 		return nil, err
 	}
 	var trx impl.TransactionOutputObj
 	tokenId := new(big.Int)
 	tokenId.SetString(input.TokenId, 10)
-	trx, err = contract.PutNftOnSale(ctx, input.PrivateKey, tokenId)
+	trx, err = nftContract.PutNftOnSale(ctx, input.PrivateKey, tokenId)
 	if err != nil {
 		return trx, err
 	}
 	return trx, nil
 }
 
-func (s Service) getContractInstance(contract string) (ERC721Standard, error) {
-	contractInstance, ok := s.contracts[contract]
+func (s Service) BuyNftOnSale(ctx context.Context, input input.InputToBuyNftConverted) (interface{}, error) {
+	auctionContract, err := s.getAuctionContractInstance(input.AuctionContract)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := auctionContract.PutOrderToBuyNft(ctx, input.PrivateKey, input.TokenId, input.Bid)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (s Service) getNfContractInstance(contract string) (NftStandard, error) {
+	contractInstance, ok := s.nftContracts[contract]
 	if !ok {
-		err := errors.New(fmt.Sprintf("contract %s is not registered in the list of available contracts", contract))
+		err := errors.New(fmt.Sprintf("nft contract %s is not registered in the list of available contracts", contract))
+		return nil, err
+	}
+	return contractInstance, nil
+}
+
+func (s Service) getAuctionContractInstance(contract string) (AuctionStandard, error) {
+	contractInstance, ok := s.auctionContracts[contract]
+	if !ok {
+		err := errors.New(fmt.Sprintf("auction contract %s is not registered in the list of available contracts", contract))
 		return nil, err
 	}
 	return contractInstance, nil

@@ -12,6 +12,7 @@ type Config struct {
 	Url              string
 	NftContracts     NftContracts
 	AuctionContracts AuctionContracts
+	TokenContracts   TokenContracts
 }
 
 type NftContracts struct {
@@ -20,6 +21,10 @@ type NftContracts struct {
 
 type AuctionContracts struct {
 	Marketplace string
+}
+
+type TokenContracts struct {
+	MockERC20 string
 }
 
 func ReadConfig() (Config, error) {
