@@ -15,15 +15,11 @@ func GetUserAddress(privateKey *ecdsa.PrivateKey) common.Address {
 }
 
 type NewTransactionObj struct {
-	PrivateKey  *ecdsa.PrivateKey
 	fromAddress common.Address
 	Nonce       *big.Int
 	GasPrice    *big.Int
 	GasLimit    uint64
 	ChainID     *big.Int
-	TokenAmount *big.Int
-	Value       *big.Int
-	To          common.Address
 }
 
 func CreateTransactionObject(ctx context.Context, conn *ethclient.Client, privateKey *ecdsa.PrivateKey) (NewTransactionObj, error) {
