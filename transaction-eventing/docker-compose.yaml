@@ -1,0 +1,56 @@
+version: "3.7"
+
+services:
+  db-marketplace:
+    container_name: db-marketplace
+    image: postgres:15
+    environment:
+      POSTGRES_USERNAME: ${DB_MARKETPLACE_USER}
+      POSTGRES_PASSWORD: ${DB_MARKETPLACE_PASSWORD}
+      POSTGRES_DB: marketplace
+    restart: always
+    ports:
+      - "5432:5432"
+
+  pg-admin:
+    container_name: pg-admin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "80:80"
+    depends_on:
+      - postgres
+
+  nats:
+    container_name: nats
+    image: nats-streaming:0.9.2
+    restart: always
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10-arm64
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+
+  elastic-kibana:
+    container_name: elastic-kibana
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    environment:
+      ELASTICSEARCH_HOSTS: 'http://elasticsearch:9200'
+    depends_on:
+      - elasticsearch
+    ports:
+      - '5601:5601'
+
+networks:
+  default:
+    name: marketplace-net
+

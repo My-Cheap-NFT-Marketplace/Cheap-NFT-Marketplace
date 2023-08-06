@@ -1,7 +1,8 @@
-CREATE TYPE sale_status AS ENUM ('on_sale', 'sold', 'not_for_sale');
+CREATE TYPE order_status AS ENUM ('created', 'pending', 'on_sale', 'not_for_sale', 'rejected');
 
-CREATE TABLE nfts_to_sell (
-                            "token_id" varchar(255) PRIMARY KEY,
+CREATE TABLE ntf_orders (
+                            "trx" varchar(255) PRIMARY KEY,
+                            "token_id" varchar(255) NOT NULL,
                             "owner" varchar(255) NOT NULL,
                             "contract_address" varchar(255) NOT NULL,
                             "creator" varchar(255)  NOT NULL,
@@ -11,5 +12,6 @@ CREATE TABLE nfts_to_sell (
                             "updated_at" timestamptz NOT NULL DEFAULT (now())
                           );
 
-CREATE INDEX ON nfts_to_sell ("creator");
-CREATE INDEX ON nfts_to_sell ("contract_address");
+CREATE INDEX ON ntf_orders ("owner");
+CREATE INDEX ON ntf_orders ("creator");
+CREATE INDEX ON ntf_orders ("contract_address");

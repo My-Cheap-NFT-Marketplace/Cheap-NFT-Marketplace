@@ -1,0 +1,21 @@
+{
+  "serviceName": "transaction-eventing",
+  "environment": "${ENVIRONMENT}",
+  "port": "6005",
+  "database": {
+    "marketplace": {
+      "driverName": "postgres",
+      "dataSourceName": "postgres://{DB_MARKETPLACE_USER}:{DB_MARKETPLACE_PASSWORD}@{DB_MARKETPLACE_HOST}:5432/marketplace?sslmode=disable"
+    }
+  },
+  "nats":{
+      "host": "nats://${NATS_HOST}:4222"
+  },
+  "elasticSearch": {
+    "host": "http://${ELASTIC_HOST}:9200"
+  },
+  "topics": [
+    "orderTopic",
+    "errorTopic"
+  ]
+}
