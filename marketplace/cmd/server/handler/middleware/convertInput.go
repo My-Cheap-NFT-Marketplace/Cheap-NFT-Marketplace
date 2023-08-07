@@ -24,7 +24,7 @@ func ConvertInputToBuyNft(ctx *fiber.Ctx) error {
 
 	bid := new(big.Int)
 	bid.SetString(*inputData.Bid, 10)
-	convertedInput.TokenId = bid
+	convertedInput.Bid = bid
 	ctx.Locals("inputData", convertedInput)
 	return ctx.Next()
 }

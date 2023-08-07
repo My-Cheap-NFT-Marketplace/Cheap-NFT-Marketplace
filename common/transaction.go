@@ -33,7 +33,7 @@ func CreateTransactionObject(ctx context.Context, conn *ethclient.Client, privat
 		return transactionObj, err
 	}
 	// todo check how to obtain an appropiate gasLimit
-	gasLimit := uint64(500521)
+	gasLimit := uint64(5000521)
 	chainID, err := conn.NetworkID(ctx)
 	if err != nil {
 		return transactionObj, err

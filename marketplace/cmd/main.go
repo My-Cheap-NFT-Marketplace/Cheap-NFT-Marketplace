@@ -14,7 +14,7 @@ import (
 func main() {
 	serviceConfig, err := config.ReadConfig()
 	if err != nil {
-		log.Fatal("error trying to start marketplace-server: ", err.Error())
+		log.Fatal("error trying to get config for marketplace-server: ", err.Error())
 	}
 
 	nftImplementations := buildNftContractsList(serviceConfig)

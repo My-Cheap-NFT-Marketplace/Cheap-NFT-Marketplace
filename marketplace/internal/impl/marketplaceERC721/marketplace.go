@@ -3,7 +3,6 @@ package marketplaceERC721
 import (
 	"context"
 	"crypto/ecdsa"
-	"errors"
 	myCommon "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common"
 	contract "github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/common/contract/trade/Marketplace/built"
 	"github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace/marketplace/cmd/config"
@@ -62,38 +61,22 @@ func (dal MarketPlaceImpl) PutOrderToBuyNft(ctx context.Context, privateKey *ecd
 		Bid:               bid,
 	}
 
-	contractABI, err := contract.MarketplaceMetaData.GetAbi()
-	if err != nil {
-		return trx, err
-	}
-	methodID, ok := contractABI.Methods["finishAuction"]
-	if !ok {
-		return trx, errors.New("finishAuction method not found")
-	}
-	messageData := append(
-		methodID.ID,
-		common.LeftPadBytes(marketplaceAuctionData.CollectionAddress.Bytes(), 32)...,
-	)
-	messageData = append(messageData, common.LeftPadBytes(marketplaceAuctionData.Erc20Address.Bytes(), 32)...)
-	messageData = append(messageData, common.LeftPadBytes(tokenId.Bytes(), 32)...)
-	messageData = append(messageData, common.LeftPadBytes(bid.Bytes(), 32)...)
-	messageHash := crypto.Keccak256Hash(messageData)
+	encodedData := encodemarketplaceAuctionData(marketplaceAuctionData)
 
-	bidderSig, err := crypto.Sign(messageHash.Bytes(), trxObj.PrivateKey)
-	if err != nil {
-		return trx, err
-	}
-	sellerKey := "45f302b77d45bc47d73e531fd28663c65889ae145b5f9f083f917c2cb907075d"
-	//sellerKey := "9fdebc6a799893cba2ea2bf5e46a0088e0c929e341c23e48c4c223a3a96a4c79"
-	pvKey2, err := crypto.HexToECDSA(sellerKey)
+	messageHash := crypto.Keccak256Hash(encodedData)
+
+	bidderSig, err := crypto.Sign(messageHash.Bytes(), privateKey)
 	if err != nil {
 		return trx, err
 	}
 
-	ownerApprovedSig, err := crypto.Sign(messageHash.Bytes(), pvKey2)
+	sellerKey := "9fdebc6a799893cba2ea2bf5e46a0088e0c929e341c23e48c4c223a3a96a4c79"
+	ownerPrivateKey, err := crypto.HexToECDSA(sellerKey)
 	if err != nil {
 		return trx, err
 	}
+
+	ownerApprovedSig, err := crypto.Sign(messageHash.Bytes(), ownerPrivateKey)
 
 	transaction, err := dal.contract.FinishAuction(auth, marketplaceAuctionData, bidderSig, ownerApprovedSig)
 	if err != nil {
@@ -106,4 +89,8 @@ func (dal MarketPlaceImpl) PutOrderToBuyNft(ctx context.Context, privateKey *ecd
 	trx.GasFeeCap = transaction.GasFeeCap().String()
 	trx.To = transaction.To().String()
 	return trx, nil
+}
+
+func encodemarketplaceAuctionData(data contract.MarketplaceAuctionData) []byte {
+	return append(append(append(data.CollectionAddress.Bytes(), data.Erc20Address.Bytes()...), data.TokenId.Bytes()...), data.Bid.Bytes()...)
 }
