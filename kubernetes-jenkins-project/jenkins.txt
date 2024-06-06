@@ -1,0 +1,31 @@
+node {
+	stage('Git checkout') {
+		git branch: 'main', url: 'https://github.com/My-Cheap-NFT-Marketplace/Cheap-NFT-Marketplace.git'
+	}
+	stage ('Sending docker file to Ansible Server over ssh') {
+       sshagent(['ansible_server']) {
+           // scp gestiona por si mismo la conexion ssh, con lo cual no es necesario agregarla
+           sh 'scp /var/lib/jenkins/workspace/pipeline-demo/kubernetes-jenkins-project/* ubuntu@172.31.31.145:/home/ubuntu'
+      }
+    }
+    stage ('Docker Build Image') {
+       sshagent(['ansible_server']) {
+       // el comando sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145' no hace nada por si solo, cada linea ssh abre y cierra su conexion y workdir
+       sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145 sudo docker image build -t $JOB_NAME:v1.$BUILD_ID -f /home/ubuntu/Dockerfile .'
+       }
+    }
+    stage ('Docker Image Tagging') {
+       sshagent(['ansible_server']) {
+       sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145 sudo docker image tag $JOB_NAME:v1.$BUILD_ID alexrondon89/$JOB_NAME:v1.$BUILD_ID'
+	   sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145 sudo docker image tag $JOB_NAME:v1.$BUILD_ID alexrondon89/$JOB_NAME:latest'
+       }
+    }
+    stage ('Push Docker Image to Docker Hub') {
+       sshagent(['ansible_server']) {
+        withCredentials([string(credentialsId: 'dockerhub_access', variable: 'dockerhub_access')]) {
+            sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145 sudo docker login -u alexrondon89 -p $dockerhub_pipeline_passwd"
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145 sudo docker image push alexrondon89/$JOB_NAME:v1.$BUILD_ID'
+        }
+      }
+    }
+}
