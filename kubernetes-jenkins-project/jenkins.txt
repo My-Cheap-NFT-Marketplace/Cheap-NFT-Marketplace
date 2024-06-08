@@ -25,7 +25,22 @@ node {
         withCredentials([string(credentialsId: 'dockerhub_access', variable: 'dockerhub_access')]) {
             sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145 sudo docker login -u alexrondon89 -p $dockerhub_access"
             sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145 sudo docker image push alexrondon89/$JOB_NAME:v1.$BUILD_ID'
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145 sudo docker image push alexrondon89/$JOB_NAME:latest'
         }
       }
+    }
+    stage('sending ansible and k8s files to each server') {
+       sshagent(['ansible_server']) {
+            sh 'scp /var/lib/jenkins/workspace/pipeline-demo/kubernetes-jenkins-project/ansible.yaml ubuntu@172.31.31.145:/home/ubuntu'
+        }
+       sshagent(['k8s_server']) {
+            sh 'scp -o StrictHostKeyChecking=no /var/lib/jenkins/workspace/pipeline-demo/kubernetes-jenkins-project/Deployment.yaml ubuntu@172.31.53.197:/home/ubuntu'
+            sh 'scp -o StrictHostKeyChecking=no /var/lib/jenkins/workspace/pipeline-demo/kubernetes-jenkins-project/Service.yaml ubuntu@172.31.53.197:/home/ubuntu'
+        }
+    }
+    stage('deploy application') {
+       sshagent(['ansible_server']) {
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.145 "cd /home/ubuntu && ansible-playbook ansible.yaml"'
+        }
     }
 }

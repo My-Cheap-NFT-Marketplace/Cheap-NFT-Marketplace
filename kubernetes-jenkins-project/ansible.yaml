@@ -4,4 +4,4 @@
     - name: create new deployment
       command: kubectl apply -f /home/ubuntu/Deployment.yaml --validate=false
     - name: create new service
-      command: kubectl apply -f /home/ubuntu/Service.yaml
+      command: kubectl apply -f /home/ubuntu/Service.yaml --validate=false
